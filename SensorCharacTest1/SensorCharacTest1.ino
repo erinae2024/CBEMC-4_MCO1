@@ -42,7 +42,7 @@ float beatsPerMinute;
 int beatAvg;
 volatile long irValue;
 
-//volatile int minuteCount = 0;
+volatile int minuteCount = 1;
 
 static bool IRAM_ATTR tell_HR (void *args){ 
 
@@ -67,7 +67,13 @@ static bool IRAM_ATTR tell_HR (void *args){
 
 static bool IRAM_ATTR printingtime(void *args){
 
-  Serial.print("\n[Time is passing...]\n");
+  Serial.print("\n[Time Elapsed: ");
+  Serial.print(minuteCount);
+  Serial.print(" minute/s");
+  Serial.println("]\n");
+
+  minuteCount = minuteCount + 1;
+  
   return true;
 
 }
