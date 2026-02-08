@@ -42,24 +42,36 @@ float beatsPerMinute;
 int beatAvg;
 volatile long irValue;
 
+//volatile int minuteCount = 0;
+
 static bool IRAM_ATTR tell_HR (void *args){ 
 
   if(irValue < 50000)
-    Serial.println("BPM: 0");
+    Serial.print("BPM: 0");
   else{
     Serial.print("BPM: ");
-    Serial.println(beatAvg);
+    Serial.print(beatAvg);
   }
+
+  Serial.print(" | Movement");
+  if(digitalRead(2))
+    Serial.println(" Detected!");
+  else
+    Serial.println(" Undetected");
  
   return true;
 
 }
 
-void playerMoved(){
 
-  Serial.println("Movement Detected!");
+
+static bool IRAM_ATTR printingtime(void *args){
+
+  Serial.print("\n[Time is passing...]\n");
+  return true;
 
 }
+
 
 void setup()
 {
@@ -101,7 +113,18 @@ void setup()
 
   timer_start(TIMER_GROUP_0, TIMER_0);
 
-  attachInterrupt(2, playerMoved, RISING); //interrupt for player movement detection
+   /*TIMER 2 SETUP*/
+  timer_init(TIMER_GROUP_0,TIMER_1,&config);
+
+  timer_set_alarm_value(TIMER_GROUP_0, TIMER_1, 2400000000);
+
+  timer_set_counter_value(TIMER_GROUP_0, TIMER_1, 0);
+
+  timer_set_alarm(TIMER_GROUP_0, TIMER_1, TIMER_ALARM_EN);
+
+  timer_isr_callback_add(TIMER_GROUP_0, TIMER_1, printingtime, (void*)0, 0);
+
+  timer_start(TIMER_GROUP_0, TIMER_1);
 }
 
 void loop()
